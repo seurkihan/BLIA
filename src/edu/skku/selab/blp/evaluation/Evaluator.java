@@ -21,6 +21,7 @@ import edu.skku.selab.blp.common.Bug;
 import edu.skku.selab.blp.common.SourceFile;
 import edu.skku.selab.blp.db.ExperimentResult;
 import edu.skku.selab.blp.db.IntegratedAnalysisValue;
+import edu.skku.selab.blp.db.SourceFileExperimentResult;
 import edu.skku.selab.blp.db.dao.BugDAO;
 import edu.skku.selab.blp.db.dao.ExperimentResultDAO;
 import edu.skku.selab.blp.db.dao.IntegratedAnalysisDAO;
@@ -35,6 +36,7 @@ public class Evaluator {
 	public final static String ALG_BLIA_FILE = "BLIA_File";
 	
 	protected ExperimentResult experimentResult;
+	protected ArrayList<SourceFileExperimentResult> sourceFileExperimentResultList;
 	protected ArrayList<Bug> bugs = null;
 	protected HashMap<Integer, HashSet<SourceFile>> realFixedFilesMap = null;;
 	protected HashMap<Integer, ArrayList<IntegratedAnalysisValue>> rankedValuesMap = null;
@@ -62,7 +64,7 @@ public class Evaluator {
 		experimentResult.setGamma(gamma);
 		experimentResult.setPastDays(pastDays);
 		bugs = null;
-		realFixedFilesMap = null;
+		realFixedFilesMap = null;		
 	}
 	
 	/**
@@ -93,10 +95,62 @@ public class Evaluator {
 		calculateMetrics();
 		
 		experimentResult.setExperimentDate(new Date(System.currentTimeMillis()));
+		
+		ExperimentResultDAO experimentResultDAO = new ExperimentResultDAO();
+		experimentResultDAO.deleteSfExperimentResults(Property.getInstance().getProductName());
+		
+		experimentResultDAO.insertExperimentResult(experimentResult);
+		
+		if(Property.getInstance().isRefinedResultSave()){
+			for(int i = 0; i<sourceFileExperimentResultList.size(); i++){
+				SourceFileExperimentResult sourceFileExperimentResult = sourceFileExperimentResultList.get(i);
+				sourceFileExperimentResult.setExperimentDate(experimentResult.getExperimentDate());
+				sourceFileExperimentResultList.set(i, sourceFileExperimentResult);
+		
+				experimentResultDAO.insertSourceFileExperimentResult(sourceFileExperimentResult);
+			}
+		}
+		
+		
+		System.out.printf("[DONE] Evaluator.evaluate().(Total %s sec)\n", Util.getElapsedTimeSting(startTime));
+	}
+	
+	public ArrayList<Double> evaluate(ArrayList<Bug> bugList) throws Exception {
+		long startTime = System.currentTimeMillis();
+		//System.out.printf("[STARTED] Evaluator.evaluate().\n");
+		
+		BugDAO bugDAO = new BugDAO();
+		bugs = bugDAO.getAllBugs(true);
+		
+		realFixedFilesMap = new HashMap<Integer, HashSet<SourceFile>>();
+		rankedValuesMap = new HashMap<Integer, ArrayList<IntegratedAnalysisValue>>();
+		for (int i = 0; i < bugs.size(); i++) {
+			int bugID = bugs.get(i).getID();
+			HashSet<SourceFile> fixedFiles = bugDAO.getFixedFiles(bugID);
+			realFixedFilesMap.put(bugID, fixedFiles);
+			rankedValuesMap.put(bugID, getRankedValues(bugID, 0));
+		}
+
+		ArrayList<Double> result = calculateMetrics(bugList);
+		
+		experimentResult.setExperimentDate(new Date(System.currentTimeMillis()));
+		
 		ExperimentResultDAO experimentResultDAO = new ExperimentResultDAO();
 		experimentResultDAO.insertExperimentResult(experimentResult);
 		
-		System.out.printf("[DONE] Evaluator.evaluate().(Total %s sec)\n", Util.getElapsedTimeSting(startTime));
+		if(Property.getInstance().isRefinedResultSave()){
+			for(int i = 0; i<sourceFileExperimentResultList.size(); i++){
+				SourceFileExperimentResult sourceFileExperimentResult = sourceFileExperimentResultList.get(i);
+				sourceFileExperimentResult.setExperimentDate(experimentResult.getExperimentDate());
+				sourceFileExperimentResultList.set(i, sourceFileExperimentResult);
+		
+				experimentResultDAO.insertSourceFileExperimentResult(sourceFileExperimentResult);
+			}
+		}
+		
+		
+		//System.out.printf("[DONE] Evaluator.evaluate().(Total %s sec)\n", Util.getElapsedTimeSting(startTime));
+		return result;
 	}
 	
 	private ArrayList<IntegratedAnalysisValue> getRankedValues(int bugID, int limit) throws Exception {
@@ -112,7 +166,6 @@ public class Evaluator {
 	
     private class WorkerThread implements Runnable {
     	private int bugID;
-    	
         public WorkerThread(int bugID) {
             this.bugID = bugID;
         }
@@ -129,6 +182,7 @@ public class Evaluator {
         }
         
         private void calculateTopN() throws Exception {
+        	
 			HashSet<SourceFile> realFixedFiles = realFixedFilesMap.get(bugID);
 			// Exception handling
 			if (null == realFixedFiles) {
@@ -149,6 +203,9 @@ public class Evaluator {
 			
 			// test code
 			limitedCount = 30;
+			boolean top1Bool = false;
+			boolean top5Bool = false;
+			boolean top10Bool = false;
 			
 			ArrayList<IntegratedAnalysisValue> rankedValues = rankedValuesMap.get(bugID);
 			if (rankedValues == null) {
@@ -158,44 +215,83 @@ public class Evaluator {
 			for (int j = 0; j < rankedValues.size(); j++) {
 				int sourceFileVersionID = rankedValues.get(j).getSourceFileVersionID();
 				if (fixedFileVersionIDs.contains(sourceFileVersionID)) {
+			    	SourceFileExperimentResult sourceFileExperimentResult = new SourceFileExperimentResult();			    	
+			    	sourceFileExperimentResult.setProductName(experimentResult.getProductName());
+			    	sourceFileExperimentResult.setAlgorithmName(experimentResult.getAlgorithmName());
+			    	sourceFileExperimentResult.setBugID(bugID);
+			    	sourceFileExperimentResult.setAlpha(experimentResult.getAlpha());
+			    	sourceFileExperimentResult.setBeta(experimentResult.getBeta());
+			    	sourceFileExperimentResult.setGamma(experimentResult.getGamma());
+			    	sourceFileExperimentResult.setPastDays(experimentResult.getPastDays());
 					synchronized(syncLock) {
 						if (j < 1) {
-							top1++;
-							top5++;
-							top10++;
+							if(top1Bool==false && top5Bool==false && top10Bool == false){
+								top1++;
+								top5++;
+								top10++;
+								top1Bool=true;
+							}
 						
 							String log = bugID + " " + fixedFileVersionMap.get(sourceFileVersionID).getName() + " " + (j + 1) + "\n";
 							writer.write(log);
+							sourceFileExperimentResult.setFileName(fixedFileVersionMap.get(sourceFileVersionID).getName());
+							sourceFileExperimentResult.setRank(j+1);
 	//						System.out.printf("%d %s %d\n",
 	//								bugID, fixedFileVersionMap.get(sourceFileVersionID).getName(), j + 1);
-							break;						
+							//break;						
 						} else if (j < 5) {
-							top5++;
-							top10++;
+							if(top1Bool==false && top5Bool==false && top10Bool == false){
+								top5++;
+								top10++;
+								top5Bool=true;
+							}
 							
 							String log = bugID + " " + fixedFileVersionMap.get(sourceFileVersionID).getName() + " " + (j + 1) + "\n";
 							writer.write(log);
+
+							sourceFileExperimentResult.setFileName(fixedFileVersionMap.get(sourceFileVersionID).getName());
+							sourceFileExperimentResult.setRank(j+1);
 	//						System.out.printf("%d %s %d\n",
 	//								bugID, fixedFileVersionMap.get(sourceFileVersionID).getName(), j + 1);
-							break;
+							//break;
 						} else if (j < 10) {
-							top10++;
+							if(top1Bool==false && top5Bool==false && top10Bool == false){
+								top10++;
+								top10Bool=true;
+							}
 
 							String log = bugID + " " + fixedFileVersionMap.get(sourceFileVersionID).getName() + " " + (j + 1) + "\n";
 							writer.write(log);
+
+							sourceFileExperimentResult.setFileName(fixedFileVersionMap.get(sourceFileVersionID).getName());
+							sourceFileExperimentResult.setRank(j+1);
 	//						System.out.printf("%d %s %d\n",
 	//								bugID, fixedFileVersionMap.get(sourceFileVersionID).getName(), j + 1);
-							break;
+							//break;
 						}
 						// debug code
 						else if (j < limitedCount) {
 							String log = bugID + " " + fixedFileVersionMap.get(sourceFileVersionID).getName() + " " + (j + 1) + "\n";
 							writer.write(log);
+
+							sourceFileExperimentResult.setFileName(fixedFileVersionMap.get(sourceFileVersionID).getName());
+							sourceFileExperimentResult.setRank(j+1);
 	//						System.out.printf("%d %s %d\n",
 	//								bugID, fixedFileVersionMap.get(sourceFileVersionID).getName(), j + 1);
-							break;
+							//break;
+						}// debug code
+						else{
+							String log = bugID + " " + fixedFileVersionMap.get(sourceFileVersionID).getName() + " " + (j + 1) + "\n";
+							writer.write(log);
+
+							sourceFileExperimentResult.setFileName(fixedFileVersionMap.get(sourceFileVersionID).getName());
+							sourceFileExperimentResult.setRank(j+1);
+	//						System.out.printf("%d %s %d\n",
+	//								bugID, fixedFileVersionMap.get(sourceFileVersionID).getName(), j + 1);
+							//break;
 						}
 					}
+					sourceFileExperimentResultList.add(sourceFileExperimentResult);
 				}
 			}
         }
@@ -280,13 +376,15 @@ public class Evaluator {
     }
     
     protected String getOutputFileName() {
-		String outputFileName = String.format(Property.getInstance().getRefinedOutputResultFile()+"//%s_alpha_%.1f_beta_%.1f_gamma_%.1f_k_%d",
+		String outputFileName = String.format("D:\\Users\\rose\\BLIA\\Results\\%s_alpha_%.1f_beta_%.1f_gamma_%.1f_k_%d",
 				experimentResult.getProductName(), experimentResult.getAlpha(), experimentResult.getBeta(),
 				experimentResult.getGamma(), experimentResult.getPastDays()); 
+    	/*String outputFileName = String.format("D:\\Users\\rose\\BLIA\\Results\\%s-dc",
+				experimentResult.getProductName()); */
 		if (experimentResult.getCandidateRate() > 0.0) {
 			outputFileName += String.format("_cand_rate_%.2f", experimentResult.getCandidateRate()); 			
 		}
-		outputFileName += "_" + experimentResult.getAlgorithmName() + ".txt";
+		outputFileName += "_" + experimentResult.getAlgorithmName() + ".csv";
 		
 		return outputFileName;
     }
@@ -296,6 +394,7 @@ public class Evaluator {
 		writer = new FileWriter(outputFileName, false);
 		
 		ExecutorService executor = Executors.newFixedThreadPool(Property.THREAD_COUNT);
+		sourceFileExperimentResultList = new ArrayList<SourceFileExperimentResult>();
 //		boolean isCounted = false;
 		for (int i = 0; i < bugs.size(); i++) {
 			Runnable worker = new WorkerThread(bugs.get(i).getID());
@@ -345,5 +444,71 @@ public class Evaluator {
 		
 		writer.flush();
 		writer.close();
+	}
+	
+	protected ArrayList<Double> calculateMetrics(ArrayList<Bug> bugList) throws Exception {
+		ArrayList<Double> result = new ArrayList<Double>();
+		String outputFileName = getOutputFileName();
+		writer = new FileWriter(outputFileName, false);
+		
+		ExecutorService executor = Executors.newFixedThreadPool(Property.THREAD_COUNT);
+		sourceFileExperimentResultList = new ArrayList<SourceFileExperimentResult>();
+//		boolean isCounted = false;
+		for (int i = 0; i < bugs.size(); i++) {
+			Runnable worker = new WorkerThread(bugs.get(i).getID());
+			executor.execute(worker);
+		}
+		
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+		}
+		
+		experimentResult.setTop1(top1);
+		experimentResult.setTop5(top5);
+		experimentResult.setTop10(top10);
+		
+		int bugCount = bugs.size();
+		experimentResult.setTop1Rate((double) top1 / bugCount);
+		experimentResult.setTop5Rate((double) top5 / bugCount);
+		experimentResult.setTop10Rate((double) top10 / bugCount);
+
+//		System.out.printf("[%s] Top1: %d, Top5: %d, Top10: %d, Top1Rate: %f, Top5Rate: %f, Top10Rate: %f\n",
+//				experimentResult.getAlgorithmName(),
+//				experimentResult.getTop1(), experimentResult.getTop5(), experimentResult.getTop10(),
+//				experimentResult.getTop1Rate(), experimentResult.getTop5Rate(), experimentResult.getTop10Rate());
+		String log = "Top1: " + experimentResult.getTop1() + ", " +
+				"Top5: " + experimentResult.getTop5() + ", " +
+				"Top10: " + experimentResult.getTop10() + ", " +
+				"Top1Rate: " + experimentResult.getTop1Rate() + ", " +
+				"Top5Rate: " + experimentResult.getTop5Rate() + ", " +
+				"Top10Rate: " + experimentResult.getTop10Rate() + "\n";
+		writer.write(log);
+		
+////////////////////////////////////////////////////////////////////////////
+		double MRR = sumOfRRank / bugs.size();
+		experimentResult.setMRR(MRR);
+		
+//		System.out.printf("MRR: %f\n", experimentResult.getMRR());
+		log = "MRR: " + experimentResult.getMRR() + "\n";
+		writer.write(log);
+
+////////////////////////////////////////////////////////////////////////////
+		MAP = MAP / bugs.size();
+		experimentResult.setMAP(MAP);
+		
+//		System.out.printf("MAP: %f\n", experimentResult.getMAP());
+		log = "MAP: " + experimentResult.getMAP() + "\n";
+		writer.write(log);
+		
+		writer.flush();
+		writer.close();
+		
+		System.out.println("["+experimentResult.getAlgorithmName()+"]\t Top1R: "+experimentResult.getTop1Rate()+", Top5R: "+experimentResult.getTop5Rate()+
+				", Top10R:"+experimentResult.getTop10Rate()+", MAP: "+experimentResult.getMAP()+", MRR: "+ experimentResult.getMRR());
+		
+		result.add(MAP);
+		result.add(MRR);
+		
+		return result;
 	}
 }

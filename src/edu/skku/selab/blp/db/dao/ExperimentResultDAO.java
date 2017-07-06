@@ -8,6 +8,8 @@
 package edu.skku.selab.blp.db.dao;
 
 import edu.skku.selab.blp.db.ExperimentResult;
+import edu.skku.selab.blp.db.MethodExperimentResult;
+import edu.skku.selab.blp.db.SourceFileExperimentResult;
 
 /**
  * @author Klaus Changsun Youm(klausyoum@skku.edu)
@@ -110,4 +112,91 @@ public class ExperimentResultDAO extends BaseDAO {
 		
 		return returnValue;
 	}
+	
+	// Add to save the SF & Method experimental results
+
+	
+	public int insertSourceFileExperimentResult(SourceFileExperimentResult experimentResult) {
+		String sql = "INSERT INTO SF_EXP_INFO (PROD_NAME, ALG_NAME, FILE_NAME, RANK, ALPHA, BETA, GAMMA, PAST_DAYS, EXP_DATE, BUG_ID) "
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?)";
+		int returnValue = INVALID;
+		
+		try {
+			ps = evaluationDbConnection.prepareStatement(sql);
+			ps.setString(1, experimentResult.getProductName());
+			ps.setString(2, experimentResult.getAlgorithmName());
+			ps.setString(3, experimentResult.getFileName());
+			ps.setInt(4, experimentResult.getRank());
+			ps.setDouble(5, experimentResult.getAlpha());
+			ps.setDouble(6, experimentResult.getBeta());
+			ps.setDouble(7, experimentResult.getGamma());
+			ps.setDouble(8, experimentResult.getPastDays());
+			ps.setString(9, experimentResult.getExperimentDateString());
+			ps.setInt(10, experimentResult.getBugID());
+			
+			returnValue = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return returnValue;
+	}
+	
+	public int insertMethodExperimentResult(MethodExperimentResult experimentResult) {
+		String sql = "INSERT INTO MTD_EXP_INFO (PROD_NAME, ALG_NAME, FILE_NAME, METHOD_NAME, RANK, ALPHA, BETA, GAMMA, PAST_DAYS, EXP_DATE, BUG_ID, ALL_METHOD_NUM) "
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+		int returnValue = INVALID;
+		
+		try {
+			ps = evaluationDbConnection.prepareStatement(sql);
+			ps.setString(1, experimentResult.getProductName());
+			ps.setString(2, experimentResult.getAlgorithmName());
+			ps.setString(3, experimentResult.getFileName());
+			ps.setString(4, experimentResult.getMethodName());
+			ps.setInt(5, experimentResult.getRank());
+			ps.setDouble(6, experimentResult.getAlpha());
+			ps.setDouble(7, experimentResult.getBeta());
+			ps.setDouble(8, experimentResult.getGamma());
+			ps.setDouble(9, experimentResult.getPastDays());
+			ps.setString(10, experimentResult.getExperimentDateString());
+			ps.setInt(11, experimentResult.getBugID());
+			ps.setInt(12, experimentResult.getAllMethodNum());
+			
+			returnValue = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return returnValue;
+	}
+
+	public void deleteMthExperimentResults(String productName) {
+		String sql = "DELETE FROM MTD_EXP_INFO WHERE PROD_NAME like '%"+productName+"%'";
+		int returnValue = INVALID;
+		
+		try {
+			ps = evaluationDbConnection.prepareStatement(sql);
+			
+			returnValue = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+				
+	}
+	
+	public void deleteSfExperimentResults(String productName) {
+		String sql = "DELETE FROM SF_EXP_INFO WHERE PROD_NAME like '%"+productName+"%'";
+		int returnValue = INVALID;
+		
+		try {
+			ps = evaluationDbConnection.prepareStatement(sql);
+			
+			returnValue = ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+				
+	}
+	
+	
 }
