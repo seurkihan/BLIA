@@ -123,4 +123,56 @@ public class SourceFileCorpusCreator {
 
 		property.setFileCount(count);
 	}
+
+	//20170707 - Implement commit based Just diff. files creator
+	public void create(String version, ArrayList<String> fileList) throws Exception {
+		Property property = Property.getInstance();
+		FileDetector detector = new FileDetector("java");
+		File files[] = detector.detect(property.getSourceCodeDirList());
+		
+		SourceFileDAO sourceFileDAO = new SourceFileDAO();
+		int count = 0;
+		TreeSet<String> nameSet = new TreeSet<String>();
+		for (int i = 0; i < files.length; i++) {
+			File file = files[i];
+			
+			boolean stopFlag = false;
+			for(int j = 0 ; j<fileList.size(); j++){				
+				String diffFile = fileList.get(j).replace("MODIFY ", "").replace("ADD ", "").replace("DELETE ", "");
+				if(file.toString().toLowerCase().contains(diffFile.toLowerCase())){
+					stopFlag = true;
+					break;
+				}
+			}
+			if(!stopFlag) continue;
+			
+			
+			SourceFileCorpus corpus = create(file);
+			if (corpus != null && !nameSet.contains(corpus.getJavaFileFullClassName())) {
+				String fileName = corpus.getJavaFileFullClassName();
+				if (!corpus.getJavaFileFullClassName().endsWith(".java")) {
+					fileName += ".java";
+				}
+
+				int sourceFileID = sourceFileDAO.insertSourceFile(fileName);
+				if (BaseDAO.INVALID == sourceFileID) {
+					System.err.printf("[StructuredSourceFileCorpusCreator.create()] %s insertSourceFile() failed.\n", fileName);
+					throw new Exception(); 
+				}
+				
+				int sourceFileVersionID = sourceFileDAO.insertCorpusSet(sourceFileID, version, corpus,
+						SourceFileDAO.INIT_TOTAL_COUPUS_COUNT, SourceFileDAO.INIT_LENGTH_SCORE);
+				if (BaseDAO.INVALID == sourceFileVersionID) {
+					System.err.printf("[StructuredSourceFileCorpusCreator.create()] %s insertCorpusSet() failed.\n", fileName);
+					throw new Exception(); 
+				}
+
+				sourceFileDAO.insertImportedClasses(sourceFileVersionID, corpus.getImportedClasses());
+				nameSet.add(corpus.getJavaFileFullClassName());
+				count++;
+			}
+		}
+
+		property.setFileCount(count);
+	}
 }

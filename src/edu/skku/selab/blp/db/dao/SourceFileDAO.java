@@ -59,15 +59,17 @@ public class SourceFileDAO extends BaseDAO {
 	public int insertSourceFile(String fileName, String className) {
 		String sql = "INSERT INTO SF_INFO (SF_NAME, CLS_NAME) VALUES (?, ?)";
 		int returnValue = INVALID;
-		
+
 		try {
 			ps = analysisDbConnection.prepareStatement(sql);
 			ps.setString(1, fileName);
 			ps.setString(2, className);
 			
 			returnValue = ps.executeUpdate();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch(Exception e){
+			
+			//20170707 - Modify for commit based evaluation
+			return getSourceFileID(fileName, className);
 		}
 		
 		if (INVALID != returnValue) {

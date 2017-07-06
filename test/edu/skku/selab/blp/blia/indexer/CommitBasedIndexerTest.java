@@ -68,6 +68,14 @@ public class CommitBasedIndexerTest {
 		
 		git.checkout().setName(prevCommit).call();
 		
+//		StructuredSourceFileCorpusCreator sscc = new StructuredSourceFileCorpusCreator(); 
+		SourceFileCorpusCreator sscc = new SourceFileCorpusCreator();
+		
+		sscc.create(String.valueOf(verID));
+		System.out.println("DONE");
+			
+		verID++;
+		
 		HashMap<Integer, ArrayList<String>> commitedFileList = new HashMap<Integer, ArrayList<String>>(); 
 		for(int i = 1; i<bugList.size(); i++){
 			ArrayList<String> fileList = new ArrayList<String>();
@@ -105,13 +113,15 @@ public class CommitBasedIndexerTest {
                 for (DiffEntry entry : diffs) {
                 	if(entry.toString().contains(".java]")){
 //	                    System.out.println(num+" Entry: " + entry);
-	                    fileList.add(entry.toString().replace("Entry: DiffEntry[", "").replace("]",""));
+	                    fileList.add(entry.toString().replace("Entry: DiffEntry[", "").replace("DiffEntry[", "").replace("]","").replace("/", "\\"));
 	                    num++;
                 	}
                 }
     		}
     		commitedFileList.put(bugList.get(i).getID(), fileList);
-			
+
+    		sscc.create(String.valueOf(verID),fileList);
+    		System.out.println(verID+" "+bugList.get(i).getID()+" DONE "+fileList.size());
 			prevCommit = fixedPrevCommit;
 			verID++;		
 		}

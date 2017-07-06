@@ -63,7 +63,7 @@ public class Property {
 	final static private boolean STRUCTURED_INFO_INCLUDED = Property.readProperty("STRUCTURED_INFO_INCLUDED").equalsIgnoreCase("TRUE");
 	final static private boolean COMMENT_PROBLEM_SOLVE = Property.readProperty("COMMENT_PROBLEM_SOLVE").equalsIgnoreCase("TRUE");
 	final static private String REFINED_OUTPUT_RESULT_FILE = Property.readProperty("REFINED_OUTPUT_RESULT_FILE");
-	
+	final static private String COMMIT_BASED_EVAL = Property.readProperty("COMMIT_BASED_EVAL");	
 	
 
 	public int getBugTermCount() {

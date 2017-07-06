@@ -104,6 +104,103 @@ public class StructuredSourceFileCorpusCreator extends SourceFileCorpusCreator {
 		TreeSet<String> nameSet = new TreeSet<String>();
 		for (int i = 0; i < files.length; i++) {
 			File file = files[i];
+//			System.out.println(file);
+			SourceFileCorpus corpus = create(file);
+
+			if (corpus != null && !nameSet.contains(corpus.getJavaFileFullClassName())) {
+				String className = corpus.getJavaFileFullClassName();
+				if (!corpus.getJavaFileFullClassName().endsWith(".java")) {
+					className += ".java";
+				}
+				
+				String fileName = "";
+				if (productName.equalsIgnoreCase("aspectj")) {
+					String absolutePath = file.getAbsolutePath();
+					String sourceCodeDirName = property.getSourceCodeDir();
+					int index = absolutePath.indexOf(sourceCodeDirName);
+					fileName = absolutePath.substring(index + sourceCodeDirName.length() + 1, absolutePath.length());
+					fileName = fileName.replace("\\", "/");
+				
+//					System.out.printf("[StructuredSourceFileCorpusCreator.create()] %s, %s\n", filePath, fileName);
+				} else {
+					fileName = file.getAbsolutePath().replace("\\", ".");
+					fileName = fileName.replace("/", ".");
+					
+					// Wrong file that has invalid package or path
+					if (!fileName.endsWith(className)) {
+						System.err.printf("[StructuredSourceFileCorpusCreator.create()] %s, %s\n", fileName, className);
+						continue;
+					}
+					
+					fileName = className;
+				}
+				
+				int sourceFileID = sourceFileDAO.insertSourceFile(fileName, className);
+				if (BaseDAO.INVALID == sourceFileID) {
+					System.err.printf("[StructuredSourceFileCorpusCreator.create()] %s insertSourceFile() failed.\n", className);
+					throw new Exception(); 
+				}
+				
+				int sourceFileVersionID = sourceFileDAO.insertCorpusSet(sourceFileID, version, corpus, totalCoupusCount, lengthScore);
+				if (BaseDAO.INVALID == sourceFileVersionID) {
+					System.err.printf("[StructuredSourceFileCorpusCreator.create()] %s insertCorpusSet() failed.\n", className);
+					throw new Exception(); 
+				}
+				
+				ArrayList<Method> methodList = corpus.getMethodList();
+				for (int j = 0; j < methodList.size(); ++j) {
+					Method method = methodList.get(j);
+					method.setSourceFileVersionID(sourceFileVersionID);
+					methodDAO.insertMethod(method);
+				}
+
+				sourceFileDAO.insertImportedClasses(sourceFileVersionID, corpus.getImportedClasses());
+				nameSet.add(corpus.getJavaFileFullClassName());
+				count++;
+			}
+		}
+
+		property.setFileCount(count);
+	}
+	
+		
+	//20170707 - Implement commit based Just diff. files creator
+	public void create(String version, ArrayList<String> fileList) throws Exception {
+		Property property = Property.getInstance();
+		FileDetector detector = new FileDetector("java");
+		File files[] = detector.detect(property.getSourceCodeDirList());
+		
+		SourceFileDAO sourceFileDAO = new SourceFileDAO();
+		MethodDAO methodDAO = new MethodDAO();
+		
+		String productName = property.getProductName();
+		int totalCoupusCount = SourceFileDAO.INIT_TOTAL_COUPUS_COUNT;
+		double lengthScore = SourceFileDAO.INIT_LENGTH_SCORE;
+
+		// debug code
+//		System.out.printf("Source code dir: %s\n", property.getSourceCodeDir());
+//		
+//		FileWriter tempWriter = new FileWriter(".\\temp.txt");
+//		for (int i = 0; i < files.length; i++) {
+//			tempWriter.write("[" + (i+1) + "] " + files[i].getAbsolutePath() + "\n"); 
+//			System.out.printf("[%d] %s\n", i + 1, files[i].getAbsolutePath());
+//		}
+//		tempWriter.close();
+
+		int count = 0;
+		TreeSet<String> nameSet = new TreeSet<String>();
+		for (int i = 0; i < files.length; i++) {
+			File file = files[i];
+			boolean stopFlag = false;
+			for(int j = 0 ; j<fileList.size(); j++){				
+				String diffFile = fileList.get(j).replace("MODIFY ", "").replace("ADD ", "").replace("DELETE ", "");
+				if(file.toString().toLowerCase().contains(diffFile.toLowerCase())){
+					stopFlag = true;
+					break;
+				}
+			}
+			if(!stopFlag) continue;
+				
 			SourceFileCorpus corpus = create(file);
 
 			if (corpus != null && !nameSet.contains(corpus.getJavaFileFullClassName())) {
