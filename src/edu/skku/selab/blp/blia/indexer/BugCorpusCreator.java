@@ -58,7 +58,7 @@ import edu.skku.selab.blp.utils.Stopword;
  *
  */
 public class BugCorpusCreator {
-	private String stemContent(String content[]) {
+	private static String stemContent(String content[]) {
 		StringBuffer contentBuf = new StringBuffer();
 		for (int i = 0; i < content.length; i++) {
 			String word = content[i].toLowerCase();
@@ -192,7 +192,7 @@ public class BugCorpusCreator {
 		}
 	}
 	
-    public ArrayList<String> extractClassName(String content, int bugID) {
+    public static ArrayList<String> extractClassName(String content, int bugID) {
 //        String pattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*\\(([a-zA-Z_][a-zA-Z0-9_\\-]*\\.java:[0-9]*|(?i)native method|(?i)unknown source)\\))";
         String pattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*" +
         		"[a-zA-Z_<(][a-zA-Z0-9_\\-$>);/\\[]*" +
@@ -221,7 +221,7 @@ public class BugCorpusCreator {
         return stackTraceClasses;
     }
     
-    private String parseContent(Bug bug, String content, boolean stackTraceAnalysis) {
+    private static String parseContent(Bug bug, String content, boolean stackTraceAnalysis) {
 		content = content.replace("&amp;", "&");
 		content = content.replace("&quot;", "\"");
 		content = content.replace("&lt;", "<");
@@ -244,7 +244,7 @@ public class BugCorpusCreator {
     	return result;
     }
 
-	private ArrayList<Bug> parseXML(boolean stackTraceAnalysis) {
+	public static ArrayList<Bug> parseXML(boolean stackTraceAnalysis) {
 		ArrayList<Bug> list = new ArrayList<Bug>();
 		DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 		Property property = Property.getInstance();

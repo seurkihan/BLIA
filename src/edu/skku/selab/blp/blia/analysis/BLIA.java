@@ -53,8 +53,10 @@ public class BLIA {
 	}
 	
 	public void prepareAnalysisData(boolean useStrucrutedInfo, Date commitSince, Date commitUntil) throws Exception {
-		System.out.printf("[STARTED] Source file corpus creating.\n");
 		long startTime = System.currentTimeMillis();
+		
+		
+		System.out.printf("[STARTED] Source file corpus creating.\n");
 		if (!useStrucrutedInfo) {
 			SourceFileCorpusCreator sourceFileCorpusCreator = new SourceFileCorpusCreator();
 			sourceFileCorpusCreator.create(version);
@@ -70,7 +72,7 @@ public class BLIA {
 		sourceFileVectorCreator.createIndex(version);
 		sourceFileVectorCreator.computeLengthScore(version);
 		sourceFileVectorCreator.create(version);
-		System.out.printf("[DONE] Source file vector creating.(%s sec)\n", getElapsedTimeSting(startTime));
+		System.out.printf("[DONE] Source file vector creating.(%s sec)\n", getElapsedTimeSting(startTime));	
 		
 		// Create SordtedID.txt
 		System.out.printf("[STARTED] Bug corpus creating.\n");
@@ -117,7 +119,7 @@ public class BLIA {
 		System.out.printf("[DONE] Source file analysis.(%s sec)\n", getElapsedTimeSting(startTime));
 
 		// SIMI_SCORE
-		if(Property.getInstance().getAlpha() == 0){
+		if(Property.getInstance().getAlpha() != 0){
 			System.out.printf("[STARTED] Bug repository analysis.\n");
 			startTime = System.currentTimeMillis();
 			BugRepoAnalyzer bugRepoAnalyzer = new BugRepoAnalyzer(bugs);

@@ -164,6 +164,7 @@ public class Property {
 	
 	public static Property loadInstance() throws Exception {
 		String targetProduct = Property.readProperty("TARGET_PRODUCT");
+		System.out.println(targetProduct+"!!");
 		return loadInstance(targetProduct);
 	}
 	

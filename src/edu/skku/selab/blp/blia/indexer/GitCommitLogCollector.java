@@ -263,7 +263,7 @@ public class GitCommitLogCollector implements ICommitLogCollector {
 						extendedcommitInfo.addCommitFile(commitType, updatedFileName);
 						
 						// debug code
-//						System.out.printf("ChagngeType: %d, Path: %s\n", commitType, updatedFileName);
+						System.out.printf("ChagngeType: %d, Path: %s\n", commitType, updatedFileName);
 						
 						ArrayList<Method> modifedMethods = extractModifiedMethods(currentCommit, entry, git);
 						if (modifedMethods != null && modifedMethods.size() != 0) {
