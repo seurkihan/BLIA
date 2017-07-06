@@ -132,7 +132,9 @@ public class BugCorpusCreator {
 			String descriptionPartEx = descriptionPart + bug.getAllCommentsCorpus();
 			bugCorpus.setDescriptionPartEx(descriptionPartEx);
 			
-			if (property.isNewBugCommentsIncluded()) {
+			
+			// 20170706 Comment import error - Misoo Rose
+			if (property.isNewBugCommentsIncluded() && !Property.getInstance().isCommendProblemSolve()) {
 				bugCorpus.setDescriptionPart(descriptionPartEx);
 			}
 

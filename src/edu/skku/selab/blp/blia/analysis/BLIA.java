@@ -76,7 +76,7 @@ public class BLIA {
 		System.out.printf("[STARTED] Bug corpus creating.\n");
 		startTime = System.currentTimeMillis();
 		BugCorpusCreator bugCorpusCreator = new BugCorpusCreator();
-		boolean stackTraceAnaysis = true;
+		boolean stackTraceAnaysis = Property.getInstance().isStraceScoreIncluded();
 		bugCorpusCreator.create(stackTraceAnaysis);
 		System.out.printf("[DONE] Bug corpus creating.(%s sec)\n", getElapsedTimeSting(startTime));
 		
@@ -86,15 +86,16 @@ public class BLIA {
 		bugVectorCreator.create();
 		System.out.printf("[DONE] Bug vector creating.(%s sec)\n", getElapsedTimeSting(startTime));
 
-		System.out.printf("[STARTED] Commit log collecting.\n");
-		startTime = System.currentTimeMillis();
-		String repoDir = Property.getInstance().getRepoDir();
-		GitCommitLogCollector gitCommitLogCollector = new GitCommitLogCollector(repoDir);
-		
-		boolean collectForcely = false;
-		gitCommitLogCollector.collectCommitLog(commitSince, commitUntil, collectForcely);
-		System.out.printf("[DONE] Commit log collecting.(%s sec)\n", getElapsedTimeSting(startTime));
-		
+		if(Property.getInstance().getBeta()!=0 && Property.getInstance().getPastDays()!=0){
+			System.out.printf("[STARTED] Commit log collecting.\n");
+			startTime = System.currentTimeMillis();
+			String repoDir = Property.getInstance().getRepoDir();
+			GitCommitLogCollector gitCommitLogCollector = new GitCommitLogCollector(repoDir);
+			
+			boolean collectForcely = false;
+			gitCommitLogCollector.collectCommitLog(commitSince, commitUntil, collectForcely);
+			System.out.printf("[DONE] Commit log collecting.(%s sec)\n", getElapsedTimeSting(startTime));
+		}
 		System.out.printf("[STARTED] Bug-Source file vector creating.\n");
 		startTime = System.currentTimeMillis();
 		BugSourceFileVectorCreator bugSourceFileVectorCreator = new BugSourceFileVectorCreator(); 
@@ -111,30 +112,34 @@ public class BLIA {
 		System.out.printf("[STARTED] Source file analysis.\n");
 		long startTime = System.currentTimeMillis();
 		SourceFileAnalyzer sourceFileAnalyzer = new SourceFileAnalyzer(bugs);
-		boolean useStructuredInformation = true;
+		boolean useStructuredInformation = Property.getInstance().isStructuredInfoIncluded();
 		sourceFileAnalyzer.analyze(version, useStructuredInformation);
 		System.out.printf("[DONE] Source file analysis.(%s sec)\n", getElapsedTimeSting(startTime));
 
 		// SIMI_SCORE
-		System.out.printf("[STARTED] Bug repository analysis.\n");
-		startTime = System.currentTimeMillis();
-		BugRepoAnalyzer bugRepoAnalyzer = new BugRepoAnalyzer(bugs);
-		bugRepoAnalyzer.analyze();
-		System.out.printf("[DONE] Bug repository analysis.(%s sec)\n", getElapsedTimeSting(startTime));
-		
+		if(Property.getInstance().getAlpha() == 0){
+			System.out.printf("[STARTED] Bug repository analysis.\n");
+			startTime = System.currentTimeMillis();
+			BugRepoAnalyzer bugRepoAnalyzer = new BugRepoAnalyzer(bugs);
+			bugRepoAnalyzer.analyze();
+			System.out.printf("[DONE] Bug repository analysis.(%s sec)\n", getElapsedTimeSting(startTime));
+		}
 		// STRACE_SCORE
-		System.out.printf("[STARTED] Stack-trace analysis.\n");
-		startTime = System.currentTimeMillis();
-		StackTraceAnalyzer stackTraceAnalyzer = new StackTraceAnalyzer(bugs);
-		stackTraceAnalyzer.analyze();
-		System.out.printf("[DONE] Stack-trace analysis.(%s sec)\n", getElapsedTimeSting(startTime));
-		
+		if(Property.getInstance().isStraceScoreIncluded()){
+			System.out.printf("[STARTED] Stack-trace analysis.\n");
+			startTime = System.currentTimeMillis();
+			StackTraceAnalyzer stackTraceAnalyzer = new StackTraceAnalyzer(bugs);
+			stackTraceAnalyzer.analyze();
+			System.out.printf("[DONE] Stack-trace analysis.(%s sec)\n", getElapsedTimeSting(startTime));
+		}
 		// COMM_SCORE
-		System.out.printf("[STARTED] Scm repository analysis.\n");
-		startTime = System.currentTimeMillis();
-		ScmRepoAnalyzer scmRepoAnalyzer = new ScmRepoAnalyzer(bugs);
-		scmRepoAnalyzer.analyze(version);
-		System.out.printf("[DONE] Scm repository analysis.(%s sec)\n", getElapsedTimeSting(startTime));
+		if(Property.getInstance().getBeta()!=0 && Property.getInstance().getPastDays()!=0){
+			System.out.printf("[STARTED] Scm repository analysis.\n");
+			startTime = System.currentTimeMillis();
+			ScmRepoAnalyzer scmRepoAnalyzer = new ScmRepoAnalyzer(bugs);
+			scmRepoAnalyzer.analyze(version);
+			System.out.printf("[DONE] Scm repository analysis.(%s sec)\n", getElapsedTimeSting(startTime));
+		}
 	}
 	
 	// TODO: will be removed after testing complete
@@ -544,11 +549,10 @@ public class BLIA {
 		long startTime = System.currentTimeMillis();
 		BLIA blia = new BLIA();
 		
-		boolean useStrucrutedInfo = true;
-		boolean includeStackTrace = true;
+		boolean useStrucrutedInfo = prop.isStructuredInfoIncluded();
+		boolean includeStackTrace = prop.isStraceScoreIncluded();
 		
-		boolean includeMethodAnalyze = true;
-
+		boolean includeMethodAnalyze = prop.isMethodLevel();
 		DbUtil dbUtil = new DbUtil();
 		String dbName = prop.getProductName();
 		dbUtil.openConnetion(dbName);

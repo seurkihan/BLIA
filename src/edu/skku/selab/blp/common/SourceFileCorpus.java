@@ -9,6 +9,8 @@ package edu.skku.selab.blp.common;
 
 import java.util.ArrayList;
 
+import edu.skku.selab.blp.Property;
+
 /**
  * @author Klaus Changsun Youm(klausyoum@skku.edu)
  *
@@ -65,7 +67,11 @@ public class SourceFileCorpus {
 	}
 
 	public String getContent() {
-//		return content;
+		// 20170706 - Mofity to reflect the un-structured Information By Misoo Rose
+		if(!Property.getInstance().isStructuredInfoIncluded()){			
+			return content.trim();
+		}
+		
 		String content = getClassPart() + " " + getMethodPart() + " " + getVariablePart() + " " + getCommentPart();
 		return content.trim();
 	}

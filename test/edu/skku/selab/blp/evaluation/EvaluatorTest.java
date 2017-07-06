@@ -104,11 +104,12 @@ public class EvaluatorTest {
 	public void verifyEvaluateBLIAOnce() throws Exception {
 		Property prop = Property.loadInstance();
 
-		boolean useStrucrutedInfo = true;
 		
 		boolean prepareAnalysisData =true;
 		boolean preAnalyze = true;
 		boolean analyze = true;
+		
+		boolean useStrucrutedInfo = prop.isStructuredInfoIncluded();
 		boolean includeStackTrace = prop.isStraceScoreIncluded();
 		boolean includeNewBugComments = prop.isNewBugCommentsIncluded();
 

@@ -280,7 +280,7 @@ public class Evaluator {
     }
     
     protected String getOutputFileName() {
-		String outputFileName = String.format("../Results/%s_alpha_%.1f_beta_%.1f_gamma_%.1f_k_%d",
+		String outputFileName = String.format(Property.getInstance().getRefinedOutputResultFile()+"//%s_alpha_%.1f_beta_%.1f_gamma_%.1f_k_%d",
 				experimentResult.getProductName(), experimentResult.getAlpha(), experimentResult.getBeta(),
 				experimentResult.getGamma(), experimentResult.getPastDays()); 
 		if (experimentResult.getCandidateRate() > 0.0) {

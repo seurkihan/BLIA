@@ -133,7 +133,15 @@ public class DbUtil {
 		String sql = "CREATE MEMORY TABLE EXP_INFO(TOP1 INT, TOP5 INT, TOP10 INT, TOP1_RATE DOUBLE, TOP5_RATE DOUBLE, TOP10_RATE DOUBLE, MAP DOUBLE, MRR DOUBLE, PROD_NAME VARCHAR(31),"
 					+ " ALG_NAME VARCHAR(31), ALG_DESC VARCHAR(255), ALPHA DOUBLE, BETA DOUBLE, GAMMA DOUBLE, PAST_DAYS INT, EXP_DATE DATETIME); " +
 				"CREATE INDEX IDX_EXP_INFO_PROD ON EXP_INFO(PROD_NAME); " +
-				"CREATE INDEX IDX_EXP_INFO_ALG ON EXP_INFO(ALG_NAME); ";
+				"CREATE INDEX IDX_EXP_INFO_ALG ON EXP_INFO(ALG_NAME); " +
+				
+				"CREATE MEMORY TABLE SF_EXP_INFO(PROD_NAME VARCHAR(31), ALG_NAME VARCHAR(31), BUG_ID int, FILE_NAME VARCHAR(255), RANK INT, "
+				+ "ALPHA DOUBLE, BETA DOUBLE, GAMMA DOUBLE, PAST_DAYS INT, EXP_DATE DATETIME); " +
+				"CREATE INDEX IDX_SF_EXP_INFO_PROD ON SF_EXP_INFO(PROD_NAME); "+
+				
+				"CREATE MEMORY TABLE MTD_EXP_INFO(PROD_NAME VARCHAR(31), ALG_NAME VARCHAR(31), BUG_ID int, FILE_NAME VARCHAR(255), METHOD_NAME VARCHAR(255), RANK INT, ALL_METHOD_NUM INT,"
+				+ "ALPHA DOUBLE, BETA DOUBLE, GAMMA DOUBLE, PAST_DAYS INT, EXP_DATE DATETIME); " +
+				"CREATE INDEX IDX_MTD_EXP_INFO_PROD ON MTD_EXP_INFO(PROD_NAME); ";;
 				
 		int returnValue = BaseDAO.INVALID;
 		try {
@@ -187,7 +195,9 @@ public class DbUtil {
 	}
 	
 	public int dropEvaluationTable() throws Exception {
-		String sql = "DROP TABLE EXP_INFO; ";
+		String sql = "DROP TABLE EXP_INFO; "
+				+ "DROP TABLE SF_EXP_INFO; "
+				+ "DROP TABLE MTD_EXP_INFO; ";
 
 		int returnValue = BaseDAO.INVALID;
 		try {
@@ -279,10 +289,10 @@ public class DbUtil {
 		// Uncomment if ONLY Experiment result data reset is needed.
 		dbUtil.openEvaluationDbConnection();
 
-//		dbUtil.dropEvaluationTable();
-//		dbUtil.createEvaluationTable();
-//		
-//		dbUtil.initializeExperimentResultData();
+		dbUtil.dropEvaluationTable();
+		dbUtil.createEvaluationTable();
+		
+		dbUtil.initializeExperimentResultData();
 		
 		dbUtil.closeConnection();
 	}

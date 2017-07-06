@@ -56,6 +56,15 @@ public class Property {
 	private double candidateLimitRate = 1.0;
 	
 	private String runLevel;
+	
+	
+	// 20170706: Add some execution configuration variables - ROSE MISOO
+	final static private boolean REFINED_RESULT_SAVE = Property.readProperty("REFINED_RESULT_SAVE").equalsIgnoreCase("TRUE");
+	final static private boolean STRUCTURED_INFO_INCLUDED = Property.readProperty("STRUCTURED_INFO_INCLUDED").equalsIgnoreCase("TRUE");
+	final static private boolean COMMENT_PROBLEM_SOLVE = Property.readProperty("COMMENT_PROBLEM_SOLVE").equalsIgnoreCase("TRUE");
+	final static private String REFINED_OUTPUT_RESULT_FILE = Property.readProperty("REFINED_OUTPUT_RESULT_FILE");
+	
+	
 
 	public int getBugTermCount() {
 		return bugTermCount;
@@ -434,4 +443,34 @@ public class Property {
 	public boolean isNewBugCommentsIncluded() {
 		return NEW_BUG_COMMENTS_INCLUDED;
 	}
+	
+	/**
+	 * @return the REFINED_RESULT_SAVE by MISOO ROSE
+	 */
+	public boolean isRefinedResultSave() {
+		return REFINED_RESULT_SAVE;
+	}
+	
+	/**
+	 * @return the STRUCTURED_INFO_INCLUDED by MISOO ROSE
+	 */
+	public boolean isStructuredInfoIncluded() {
+		return STRUCTURED_INFO_INCLUDED;
+	}
+	
+	/**
+	 * @return the COMMENT_PROBLEM_SOLVE by MISOO ROSE
+	 */
+	public boolean isCommendProblemSolve() {
+		return COMMENT_PROBLEM_SOLVE;
+	}
+	
+	/**
+	 * @return the REFINED_OUTPUT_RESULT_FILE by MISOO ROSE
+	 */
+	public String getRefinedOutputResultFile(){
+		return REFINED_OUTPUT_RESULT_FILE;
+	}
+	
+	
 }
