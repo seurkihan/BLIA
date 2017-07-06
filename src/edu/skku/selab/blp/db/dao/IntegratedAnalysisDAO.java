@@ -275,11 +275,11 @@ public class IntegratedAnalysisDAO extends BaseDAO {
 		String fixedFileName = javaFileName;
 		fixedFileName = fixedFileName.replace('/', '.');
 
-		switch (productName) {
-		case Property.ASPECTJ:
+		switch (productName.toLowerCase()) {
+		case "aspectj":
 			fixedFileName = javaFileName;
 			break;
-		case Property.ECLIPSE:
+		case "eclipse":
 			if (-1 != fixedFileName.lastIndexOf("org.eclipse")) {
 				fixedFileName = fixedFileName.substring(fixedFileName.lastIndexOf("org.eclipse"), fixedFileName.length());
 			} else if (-1 != fixedFileName.lastIndexOf("org.osgi")) {
@@ -290,14 +290,14 @@ public class IntegratedAnalysisDAO extends BaseDAO {
 				System.err.printf("Wrong fixed file that is not source file: %s\n", fixedFileName);
 			}
 			break;
-		case Property.SWT:
+		case "swt":
 			if (-1 != fixedFileName.lastIndexOf("org.eclipse.swt")) {
 				fixedFileName = fixedFileName.substring(fixedFileName.lastIndexOf("org.eclipse.swt"), fixedFileName.length());
 			} else {
 				System.err.printf("Wrong fixed file that is not source file: %s\n", fixedFileName);
 			}
 			break;
-		case Property.ZXING:
+		case "zxing":
 			if (-1 != fixedFileName.lastIndexOf("com.google.zxing")) {
 				fixedFileName = fixedFileName.substring(fixedFileName.lastIndexOf("com.google.zxing"), fixedFileName.length());
 			} else {

@@ -138,22 +138,22 @@ public class Property {
 		
 		targetProduct = targetProduct.toUpperCase();
 		
-		String productName = Property.readProperty(targetProduct + "_" + "PRODUCT");
-		String sourceCodeDir = Property.readProperty(targetProduct + "_" + "SOURCE_DIR");
-		double alpha = Double.parseDouble(Property.readProperty(targetProduct + "_" + "ALPHA"));
-		double beta = Double.parseDouble(Property.readProperty(targetProduct + "_" + "BETA"));
-		double gamma = Double.parseDouble(Property.readProperty(targetProduct + "_" + "GAMMA"));
-		int pastDays = Integer.parseInt(Property.readProperty(targetProduct + "_" + "PAST_DAYS"));
-		String repoDir = Property.readProperty(targetProduct + "_" + "REPO_DIR");
-		String bugFilePath = Property.readProperty(targetProduct + "_" + "BUG_REPO_FILE");
+		String productName = targetProduct;
+		String sourceCodeDir = Property.readProperty("SOURCE_DIR");
+		double alpha = Double.parseDouble(Property.readProperty("ALPHA"));
+		double beta = Double.parseDouble(Property.readProperty("BETA"));
+		double gamma = Double.parseDouble(Property.readProperty("GAMMA"));
+		int pastDays = Integer.parseInt(Property.readProperty("PAST_DAYS"));
+		String repoDir = Property.readProperty("REPO_DIR");
+		String bugFilePath = Property.readProperty("BUG_REPO_FILE");
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date sinceDate = dateFormat.parse(Property.readProperty(targetProduct + "_" + "COMMIT_SINCE"));
+		Date sinceDate = dateFormat.parse(Property.readProperty("COMMIT_SINCE"));
 		Calendar since = new GregorianCalendar();
 		since.setTime(sinceDate);
-		Date untilDate = dateFormat.parse(Property.readProperty(targetProduct + "_" + "COMMIT_UNTIL"));
+		Date untilDate = dateFormat.parse(Property.readProperty("COMMIT_UNTIL"));
 		Calendar until = new GregorianCalendar();
 		until.setTime(untilDate);
-		double candidateLimitRate = Double.parseDouble(Property.readProperty(targetProduct + "_" + "CANDIDATE_LIMIT_RATE"));
+		double candidateLimitRate = Double.parseDouble(Property.readProperty("CANDIDATE_LIMIT_RATE"));
 
 		p.setValues(productName, sourceCodeDir, alpha, beta, gamma, pastDays, repoDir,
 				bugFilePath, since, until, candidateLimitRate);

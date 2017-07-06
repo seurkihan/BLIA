@@ -113,7 +113,7 @@ public class StructuredSourceFileCorpusCreator extends SourceFileCorpusCreator {
 				}
 				
 				String fileName = "";
-				if (productName.contains(Property.ASPECTJ)) {
+				if (productName.equalsIgnoreCase("aspectj")) {
 					String absolutePath = file.getAbsolutePath();
 					String sourceCodeDirName = property.getSourceCodeDir();
 					int index = absolutePath.indexOf(sourceCodeDirName);

@@ -66,6 +66,7 @@ public class EvaluatorTest {
 		if (prepareAnalysisData) {
 			DbUtil dbUtil = new DbUtil();
 			String dbName = Property.getInstance().getProductName();
+			System.out.println(dbName);
 			dbUtil.openConnetion(dbName);
 			boolean commitDataIncluded = false;
 			dbUtil.initializeAllData(commitDataIncluded);
