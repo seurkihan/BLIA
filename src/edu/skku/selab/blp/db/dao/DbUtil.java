@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import edu.skku.selab.blp.Property;
+import edu.skku.selab.blp.utils.temp.ApiCsvReader;
 
 /**
  * @author Klaus Changsun Youm(klausyoum@skku.edu)
@@ -118,7 +119,13 @@ public class DbUtil {
 				
 				// 20170706 - For incremental evaluation by Misoo Rose
 				"CREATE MEMORY TABLE BUG_VER_DIFF_INFO(BUG_ID INT, VER VARCHAR(15), DIFF_SF_ID INT, TYPE VARCHAR(15));"+
-				"CREATE UNIQUE INDEX COMP_IDX_BUG_DIFF ON BUG_VER_DIFF_INFO(BUG_ID, VER, DIFF_SF_ID);";
+				"CREATE UNIQUE INDEX COMP_IDX_BUG_DIFF ON BUG_VER_DIFF_INFO(BUG_ID, VER, DIFF_SF_ID);" +
+				
+				// 20170707 - For API Score by Misoo Rose
+				"CREATE MEMORY TABLE API_DESC_INFO(API_ID INT PRIMARY KEY HASH AUTO_INCREMENT, FILE_NAME VARCHAR(9999), DESC VARCHAR(99999), IMPORT_NAME VARCHAR(256));"
+				+ "CREATE MEMORY TABLE API_SF_PAIR_INFO(API_ID INT, SF_VER_ID INT);"
+				+ "CREATE UNIQUE INDEX COMP_IDX_API_SF On API_SF_PAIR_INFo(API_ID, SF_VER_ID);";
+				
 
 
 		int returnValue = BaseDAO.INVALID;
@@ -129,6 +136,7 @@ public class DbUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		
 		return returnValue;
 	}
@@ -185,7 +193,10 @@ public class DbUtil {
 				"DROP TABLE COMM_SF_INFO; " +
 				"DROP TABLE COMM_MTH_INFO; " +
 				"DROP TABLE VER_INFO; "+
-				"DROP TABLE BUG_VER_DIFF_INFO;";
+				"DROP TABLE BUG_VER_DIFF_INFO;"+
+				
+				"DROP TABLE API_DESC_INFO;"+
+				"DROP TABLE API_SF_PAIR_INFO;";
 		
 		int returnValue = BaseDAO.INVALID;
 		try {
@@ -287,8 +298,11 @@ public class DbUtil {
 
 			prop.setProductName(productName[i]);
 			dbUtil.initializeAllData();
+			
+			ApiCsvReader.apiRead(productName[i], BaseDAO.getAnalysisDbConnection());
 
 			dbUtil.closeConnection();
+
 		}
 		
 		// Uncomment if ONLY Experiment result data reset is needed.

@@ -41,6 +41,7 @@ public class SourceFileCorpus {
 		methodPart = "";
 		variablePart = "";
 		commentPart = "";
+		
 		importedClasses = null;
 		setMethodList(null);
 		
@@ -49,6 +50,7 @@ public class SourceFileCorpus {
 		variableCorpusNorm = 0;
 		commentCorpusNorm = 0;
 	}
+
 
 	public String getJavaFileFullClassName() {
 		return javaFileFullClassName;

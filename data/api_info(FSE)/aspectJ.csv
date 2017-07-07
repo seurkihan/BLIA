@@ -1,0 +1,74 @@
+1,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/AjType.html,"T> ?extends java.lang.reflect.Type, java.lang.reflect.AnnotatedElement The runtime representation of a type (Aspect, Class, Interface, Annotation, Enum, or Array) in an AspectJ ?program. ?"
+2,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/PointcutExpression.html,"Represents an anonymous pointcut expression as used in pointcuts, advice declarations, ?declares, and per-clauses ?"
+3,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/PerClause.html,AspectJ runtime representation of the per-clause associated with an aspect. ?
+4,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/Pointcut.html,AspectJ runtime representation of a pointcut member inside a class or aspect. ?
+5,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/Advice.html,Runtime representation of an advice declaration inside an aspect ?
+6,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/InterTypeDeclaration.html,"Represents an inter-type method, field, or constructor declared in an aspect. ?"
+7,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/InterTypeMethodDeclaration.html,"Represents an inter-type method, field, or constructor declared in an aspect. ? ?extends InterTypeDeclaration Represents an inter-type method declaration member within an aspect. ?"
+8,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/InterTypeDeclaration.html,"Represents an inter-type method, field, or constructor declared in an aspect. ?"
+9,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/InterTypeConstructorDeclaration.html,"Represents an inter-type method, field, or constructor declared in an aspect. ? ?extends InterTypeDeclaration Runtime representation of an inter-type constructor member declared within an ?aspect. ?"
+10,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/InterTypeFieldDeclaration.html,"Represents an inter-type method, field, or constructor declared in an aspect. ? ?extends InterTypeDeclaration Represents an inter-type field declaration declared in an aspect. ?"
+11,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/SignaturePattern.html,"AspectJ runtime representation of a signature pattern as used in various ?aspect members (for example, declare @method, declare @field). ?"
+12,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/TypePattern.html,AspectJ runtime representation of a type pattern as used in member declarations ?such as declare parents. ?
+13,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/JoinPoint.html,Provides reflective access to both the state available at a join point and ?static information about it. This information is available from the body ?of advice using the special form thisJoinPoint. The primary ?use of this reflective information is for t...
+14,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/MemberSignature.html,extends Signature ?
+15,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/Signature.html,"Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using ?the j2se 1.4 java.u..."
+16,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/CodeSignature.html,"extends Signature ? Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using..."
+17,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/SourceLocation.html,"For defining code, the class defined and location in a source file. ?"
+18,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/WeavingAdaptor.html,extends java.lang.Object ?implements org.aspectj.bridge.IMessageContext This adaptor allows the AspectJ compiler to be embedded in an existing system to facilitate load-time weaving. It provides an ?interface for a weaving class loader to provide a clas...
+19,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/loadtime/definition/Definition.html,extends java.lang.Object A POJO that contains raw strings from the XML (sort of XMLBean for our simple LTW DTD) ?Author: ?Alexandre Vasseur ?
+20,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/Traceable.html,
+21,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/ContextBasedMatcher.html,Pointcut expression interface for pointcut ?expressions returned by a ?PointcutDesignatorHandler. Provides an additional ?matching method for matching based on context ?information over and above that normally used ?by AspectJ. ?See Also: ?MatchingContex...
+22,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/MatchingContext.html,"When extending AspectJ's pointcut parsing and ?matching with custom PointcutDesignatorHandlers, ?it may be necessary to match based on context information ?at a join point not exposed simply by java.lang.reflect ?member information or argument values. Th..."
+23,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/ShadowMatch.html,"The result of asking a PointcutExpression to match at a shadow (method execution, ?handler, constructor call, and so on). ?"
+24,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/DeclareAnnotation.html,Kind ??????????? ? ?
+25,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/DeclareErrorOrWarning.html,AspectJ runtime representation of a declare error or declare warning member ?in an aspect. ?
+26,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/DeclareParents.html,A declare parents member defined inside an aspect ?
+27,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/DeclarePrecedence.html,AspectJ runtime representation of a declare precedence statement as ??declared in an aspect. ?
+28,http://eclipse.org/aspectj/doc/released/aspectj5rt-api/org/aspectj/lang/reflect/DeclareSoft.html,AspectJ runtime representation of a declare soft member within an aspect. ?
+29,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/PointcutDesignatorHandler.html,The PointcutDesignator interface allows extension of the ?AspectJ pointcut language so that third-party tools integrating ?with AspectJ can add easily their own custom ??domain-specific designators and have them interoperate seamlessly ?with the standard...
+30,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/JoinPointMatch.html,Author: ?colyer ?The result of asking a ShadowMatch to match at a given join point. ?
+31,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/PointcutParser.html,extends java.lang.Object A PointcutParser can be used to build PointcutExpressions for a ??user-defined subset of AspectJ's pointcut language ?
+32,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/PointcutParameter.html,"Author: ?colyer ?Represents a parameter in a pointcut expression. ?For example pointcut pc(String s) : .....; has a PointcutParameter of ?name ""s"" and type String. ?"
+33,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/PointcutExpression.html,Represents an AspectJ pointcut expression and provides convenience methods to determine ?whether or not the pointcut matches join points specified in terms of the ?java.lang.reflect interfaces. ?
+34,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/ProceedingJoinPoint.html,Provides reflective access to both the state available at a join point and ?static information about it. This information is available from the body ?of advice using the special form thisJoinPoint. The primary ?use of this reflective information is for t...
+35,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/MethodSignature.html,"extends Signature ? Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using..."
+36,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/ConstructorSignature.html,"extends Signature ? Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using..."
+37,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/FieldSignature.html,"extends Signature ? Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using..."
+38,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/AdviceSignature.html,"extends Signature ? Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using..."
+39,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/InitializerSignature.html,"extends Signature ? Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using..."
+40,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/CatchClauseSignature.html,"Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using ?the j2se 1.4 java.u..."
+41,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/LockSignature.html,"Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using ?the j2se 1.4 java.u..."
+42,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/lang/reflect/UnlockSignature.html,"Represents the signature at a join point. This interface parallels ?java.lang.reflect.Member. ????This interface is typically used for tracing or logging applications ?to obtain reflective information about the join point, i.e. using ?the j2se 1.4 java.u..."
+43,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/loadtime/WeavingURLClassLoader.html,extends org.aspectj.weaver.bcel.ExtensibleURLClassLoader ?
+44,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/TraceFactory.html,extends java.lang.Object ?
+45,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/Trace.html,
+46,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/loadtime/IWeavingContext.html,This class adds support to AspectJ for an OSGi environment ?Author: ?David Knibb ?
+47,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/GeneratedClassHandler.html,Interface implemented by weaving class loaders to allow classes generated by ?the weaving process to be defined. ?
+48,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/AbstractTrace.html,extends java.lang.Object ?implements Trace ?
+49,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/DefaultTrace.html,extends java.lang.Object ?implements Trace ? ?extends AbstractTrace ?
+50,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/CommonsTraceFactory.html,extends TraceFactory ?
+51,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/CommonsTrace.html,extends java.lang.Object ?implements Trace ? ?extends AbstractTrace ?
+52,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/DefaultTraceFactory.html,extends TraceFactory ?
+53,http://eclipse.org/aspectj/doc/released/runtime-api/org/aspectj/runtime/reflect/Factory.html,extends java.lang.Object ?
+54,http://eclipse.org/aspectj/doc/released/weaver-api/org/aspectj/weaver/tools/FuzzyBoolean.html,"extends java.lang.Object This class implements a boolean that includes a ""maybe"" ?"
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,
+,,

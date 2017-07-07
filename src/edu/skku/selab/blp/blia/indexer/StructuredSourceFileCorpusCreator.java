@@ -39,12 +39,12 @@ public class StructuredSourceFileCorpusCreator extends SourceFileCorpusCreator {
 		// parser.getImportedClassed() function should be called before calling parser.getContents()
 		ArrayList<String> importedClasses = parser.getImportedClasses();
 		
-		//20170707 - Imported Class in the Corpus by Misoo Rose
+		// 20170707 - Implement structured information about Import Classes by Misoo Rose
 		String importClassString = "";
 		for(int i = 0 ; i <importedClasses.size(); i++){
-//			System.out.println(importedClasses.get(i));
+//					System.out.println(importedClasses.get(i));
 			importClassString = stemContent(importedClasses.get(i))+" ";
-		}
+		}		
 		
 		String classIdentifiers[] = parser.getStructuredContentWithFullyIdentifier(FileParser.CLASS_PART);		
 		String classPart = stemContent(classIdentifiers);

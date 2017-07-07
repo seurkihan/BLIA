@@ -66,6 +66,7 @@ public class Property {
 	final static private boolean COMMIT_BASED_EVAL = Property.readProperty("COMMIT_BASED_EVAL").equalsIgnoreCase("TRUE");
 	final static private boolean NEW_PREPROCESSING = Property.readProperty("NEW_PREPROCESSING").equalsIgnoreCase("TRUE");
 	final static private boolean NOISE_STRACE_REMOVE = Property.readProperty("NOISE_STRACE_REMOVE").equalsIgnoreCase("TRUE");
+	final static private boolean API_INFO_INCLUDED = Property.readProperty("API_INFO_INCLUDED").equalsIgnoreCase("TRUE");
 
 	public int getBugTermCount() {
 		return bugTermCount;
@@ -489,5 +490,11 @@ public class Property {
 	 */
 	public boolean isNewPreprocessing() {
 		return NEW_PREPROCESSING;
+	}
+	/**
+	 * @return the API_INFO_INCLUDED by MISOO ROSE
+	 */
+	public boolean isApiIncluded() {
+		return API_INFO_INCLUDED;
 	}
 }

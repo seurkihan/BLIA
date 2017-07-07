@@ -127,9 +127,16 @@ public class SourceFileCorpusCreator {
 		
 		// parser.getImportedClasses() function should be called before calling parser.getContents()
 		ArrayList<String> importedClasses = parser.getImportedClasses();
+		//20170707 - Imported Class in the Corpus by Misoo Rose
+		String importClassString = "";
+		for(int i = 0 ; i <importedClasses.size(); i++){
+//					System.out.println(importedClasses.get(i));
+			importClassString = stemContent(importedClasses.get(i))+" ";
+		}
+		
 		String content[] = parser.getContent();
 				
-		String sourceCodeContent = stemContent(content);
+		String sourceCodeContent = stemContent(content);//+" "+importClassString;
 		
 		// 20170707 - Extend Preprocessing for remove less than 10 characters
 		SourceFileCorpus corpus = null;
@@ -165,12 +172,36 @@ public class SourceFileCorpusCreator {
 			// 20170707 - Extend Preprocessing for remove less than 10 characters
 			if(corpus == null) continue;
 			
+			System.out.println(i+" " +file);
+			
 			if (corpus != null && !nameSet.contains(corpus.getJavaFileFullClassName())) {
-				String fileName = corpus.getJavaFileFullClassName();
+				String className = corpus.getJavaFileFullClassName();
 				if (!corpus.getJavaFileFullClassName().endsWith(".java")) {
-					fileName += ".java";
+					className += ".java";
 				}
-
+				
+				String fileName = "";
+				if (Property.getInstance().getProductName().equalsIgnoreCase("aspectj")) {
+					String absolutePath = file.getAbsolutePath();
+					String sourceCodeDirName = property.getSourceCodeDir();
+					int index = absolutePath.indexOf(sourceCodeDirName);
+					fileName = absolutePath.substring(index + sourceCodeDirName.length() + 1, absolutePath.length());
+					fileName = fileName.replace("\\", "/");
+				
+//					System.out.printf("[StructuredSourceFileCorpusCreator.create()] %s, %s\n", filePath, fileName);
+				} else {
+					fileName = file.getAbsolutePath().replace("\\", ".");
+					fileName = fileName.replace("/", ".");
+					
+					// Wrong file that has invalid package or path
+					if (!fileName.endsWith(className)) {
+						System.err.printf("[SourceFileCorpusCreator.create()] %s, %s\n", fileName);
+						continue;
+					}
+					
+					fileName = className;
+				}
+				
 				int sourceFileID = sourceFileDAO.insertSourceFile(fileName);
 				if (BaseDAO.INVALID == sourceFileID) {
 					System.err.printf("[StructuredSourceFileCorpusCreator.create()] %s insertSourceFile() failed.\n", fileName);
@@ -218,12 +249,34 @@ public class SourceFileCorpusCreator {
 			
 			SourceFileCorpus corpus = create(file);
 			if (corpus != null && !nameSet.contains(corpus.getJavaFileFullClassName())) {
-				String fileName = corpus.getJavaFileFullClassName();
+				String className = corpus.getJavaFileFullClassName();
 				if (!corpus.getJavaFileFullClassName().endsWith(".java")) {
-					fileName += ".java";
+					className += ".java";
 				}
-
-				int sourceFileID = sourceFileDAO.insertSourceFile(fileName);
+				
+				String fileName = "";
+				if (Property.getInstance().getProductName().equalsIgnoreCase("aspectj")) {
+					String absolutePath = file.getAbsolutePath();
+					String sourceCodeDirName = property.getSourceCodeDir();
+					int index = absolutePath.indexOf(sourceCodeDirName);
+					fileName = absolutePath.substring(index + sourceCodeDirName.length() + 1, absolutePath.length());
+					fileName = fileName.replace("\\", "/");
+				
+//					System.out.printf("[StructuredSourceFileCorpusCreator.create()] %s, %s\n", filePath, fileName);
+				} else {
+					fileName = file.getAbsolutePath().replace("\\", ".");
+					fileName = fileName.replace("/", ".");
+					
+					// Wrong file that has invalid package or path
+					if (!fileName.endsWith(className)) {
+						System.err.printf("[SourceFileCorpusCreator.create()] %s, %s\n", fileName, className);
+						continue;
+					}
+					
+					fileName = className;
+				}
+				
+				int sourceFileID = sourceFileDAO.insertSourceFile(fileName, className);
 				if (BaseDAO.INVALID == sourceFileID) {
 					System.err.printf("[StructuredSourceFileCorpusCreator.create()] %s insertSourceFile() failed.\n", fileName);
 					throw new Exception(); 
