@@ -63,8 +63,8 @@ public class Property {
 	final static private boolean STRUCTURED_INFO_INCLUDED = Property.readProperty("STRUCTURED_INFO_INCLUDED").equalsIgnoreCase("TRUE");
 	final static private boolean COMMENT_PROBLEM_SOLVE = Property.readProperty("COMMENT_PROBLEM_SOLVE").equalsIgnoreCase("TRUE");
 	final static private String REFINED_OUTPUT_RESULT_FILE = Property.readProperty("REFINED_OUTPUT_RESULT_FILE");
-	final static private String COMMIT_BASED_EVAL = Property.readProperty("COMMIT_BASED_EVAL");	
-	
+	final static private boolean COMMIT_BASED_EVAL = Property.readProperty("COMMIT_BASED_EVAL").equalsIgnoreCase("TRUE");
+	final static private boolean NEW_PREPROCESSING = Property.readProperty("NEW_PREPROCESSING").equalsIgnoreCase("TRUE");
 
 	public int getBugTermCount() {
 		return bugTermCount;
@@ -472,6 +472,16 @@ public class Property {
 	public String getRefinedOutputResultFile(){
 		return REFINED_OUTPUT_RESULT_FILE;
 	}
-	
-	
+	/**
+	 * @return the COMMIT_BASED_EVAL by MISOO ROSE
+	 */
+	public boolean isCommitBasedEval() {
+		return COMMIT_BASED_EVAL;
+	}
+	/**
+	 * @return the COMMENT_PROBLEM_SOLVE by MISOO ROSE
+	 */
+	public boolean isNewPreprocessing() {
+		return NEW_PREPROCESSING;
+	}
 }

@@ -68,8 +68,8 @@ public class CommitBasedIndexerTest {
 		
 		git.checkout().setName(prevCommit).call();
 		
-//		StructuredSourceFileCorpusCreator sscc = new StructuredSourceFileCorpusCreator(); 
-		SourceFileCorpusCreator sscc = new SourceFileCorpusCreator();
+		StructuredSourceFileCorpusCreator sscc = new StructuredSourceFileCorpusCreator(); 
+//		SourceFileCorpusCreator sscc = new SourceFileCorpusCreator();
 		
 		sscc.create(String.valueOf(verID));
 		System.out.println("DONE");

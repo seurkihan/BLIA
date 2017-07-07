@@ -24,11 +24,6 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,20 +31,21 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import edu.skku.selab.blp.Property;
-import edu.skku.selab.blp.common.ASTCreator;
 import edu.skku.selab.blp.common.Bug;
 import edu.skku.selab.blp.common.BugCorpus;
 import edu.skku.selab.blp.common.Comment;
-import edu.skku.selab.blp.common.CommitInfo;
 import edu.skku.selab.blp.common.ExtendedCommitInfo;
 import edu.skku.selab.blp.common.Method;
 import edu.skku.selab.blp.db.dao.BaseDAO;
 import edu.skku.selab.blp.db.dao.BugDAO;
 import edu.skku.selab.blp.db.dao.MethodDAO;
 import edu.skku.selab.blp.db.dao.SourceFileDAO;
+import edu.skku.selab.blp.utils.ContractionsExpansor;
+import edu.skku.selab.blp.utils.Inflector;
 import edu.skku.selab.blp.utils.Splitter;
 import edu.skku.selab.blp.utils.Stem;
 import edu.skku.selab.blp.utils.Stopword;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 /**
  * Create each bug corpus from each bug report.  
@@ -58,26 +54,68 @@ import edu.skku.selab.blp.utils.Stopword;
  *
  */
 public class BugCorpusCreator {
+	// 20170707 - Extend Preprocessing by Misoo Rose
+	// 20170707 - Singularization + Expansion + Remove 1 tokens + Remove Number (+ Noun / Verb Terms)
+	// 20170707 - Noun / Verb terms = Better Top10, MAP/MRR/top1,5 is little bit reduced
+	static Inflector inflector = new Inflector();
+	static ContractionsExpansor contExpans = new ContractionsExpansor();;
+	static MaxentTagger tagger= new MaxentTagger("E:\\Git-Project\\Stanford-POS\\taggers\\english-left3words-distsim.tagger");
+	
 	private static String stemContent(String content[]) {
 		StringBuffer contentBuf = new StringBuffer();
+				
 		for (int i = 0; i < content.length; i++) {
 			String word = content[i].toLowerCase();
-			if (word.length() > 0) {
+			if(Property.getInstance().isNewPreprocessing()){
+//				if(!Property.getInstance().getProductName().equalsIgnoreCase("aspectj"))
+					word = inflector.singularize(word);
+				if (word.length() > 1) {
+					String[] temp = contExpans.expand(word).split(" ");
+					
+					for(int j = 0 ; j<temp.length; j++){
+						if (temp[j].length() <= 1) 
+							continue;
+							
+						String tagged = tagger.tagString(temp[j]);
+						if(!tagged.split("_")[1].contains("N") && !tagged.split("_")[1].contains("V") 
+								 && !tagged.split("_")[1].contains("SYM") &&  !tagged.split("_")[1].contains("JJ")
+								 &&  !tagged.split("_")[1].contains("RB"))
+							continue;
+						
+						String stemWord = Stem.stem(temp[j]);
+//						String stemWord = Stem.stem(word);
+						
+						// debug code
+		//					System.out.printf("%d stemWord: %s\n", i, stemWord);
+		//					if (stemWord.contains("keys")) {
+		//						System.out.println("stemWord: " + stemWord);
+		//					}
+						
+						// Do NOT user Stopword.isKeyword() for BugCorpusCreator.
+						// Because bug report is not source code.
+						if (!Stopword.isEnglishStopword(stemWord) && !Stopword.isProjectKeyword(stemWord)) {
+							try{
+								Integer.parseInt(stemWord);
+							}catch(Exception e){
+								contentBuf.append(stemWord);
+								contentBuf.append(" ");
+							}					
+						}
+					}
+				}
+				
+			}else{
 				String stemWord = Stem.stem(word);
-				
-				// debug code
-//					System.out.printf("%d stemWord: %s\n", i, stemWord);
-//					if (stemWord.contains("keys")) {
-//						System.out.println("stemWord: " + stemWord);
-//					}
-				
-				// Do NOT user Stopword.isKeyword() for BugCorpusCreator.
-				// Because bug report is not source code.
 				if (!Stopword.isEnglishStopword(stemWord) && !Stopword.isProjectKeyword(stemWord)) {
-					contentBuf.append(stemWord);
-					contentBuf.append(" ");
+					try{
+						Integer.parseInt(stemWord);
+					}catch(Exception e){
+						contentBuf.append(stemWord);
+						contentBuf.append(" ");
+					}					
 				}
 			}
+//			
 		}
 		return contentBuf.toString();
 	}

@@ -9,6 +9,8 @@ package edu.skku.selab.blp.blia.indexer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 
 import edu.skku.selab.blp.Property;
@@ -17,23 +19,72 @@ import edu.skku.selab.blp.common.FileDetector;
 import edu.skku.selab.blp.common.FileParser;
 import edu.skku.selab.blp.db.dao.BaseDAO;
 import edu.skku.selab.blp.db.dao.SourceFileDAO;
+import edu.skku.selab.blp.utils.ContractionsExpansor;
+import edu.skku.selab.blp.utils.Inflector;
+import edu.skku.selab.blp.utils.Lemmatization;
 import edu.skku.selab.blp.utils.Stem;
 import edu.skku.selab.blp.utils.Stopword;
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 /**
  * @author Klaus Changsun Youm(klausyoum@skku.edu)
  *
  */
 public class SourceFileCorpusCreator {
+	// 20170707 - Extend Preprocessing by Misoo Rose
+	// 20170707 - Singularization + Expansion + Remove 1 tokens + Remove Number +  Noun / Verb Terms
+	// 20170707 - Noun / Verb terms = Better Top10, MAP/MRR/top1,5 is little bit reduced
+	
+	static Inflector inflector = new Inflector();
+	private static ContractionsExpansor contExpans = new ContractionsExpansor();
+	static MaxentTagger tagger= new MaxentTagger("E:\\Git-Project\\Stanford-POS\\taggers\\english-left3words-distsim.tagger");
+	
+	
 	public static String stemContent(String contents[]) {
 		StringBuffer contentBuf = new StringBuffer();
+		
+		
 		for (int i = 0; i < contents.length; i++) {
 			String word = contents[i].toLowerCase();
-			if (word.length() > 0) {
+			if(Property.getInstance().isNewPreprocessing()){
+				if(!Property.getInstance().getProductName().equalsIgnoreCase("aspectj"))
+					word = inflector.singularize(word);
+				if (word.length() > 1) {
+					String[] temp = contExpans.expand(word).split(" ");
+					
+					for(int j = 0 ; j<temp.length; j++){
+						if (temp[j].length() <= 1)						
+							continue;
+						
+						String tagged = tagger.tagString(temp[j]);
+						if(!tagged.split("_")[1].contains("N") && !tagged.split("_")[1].contains("V") 
+								 && !tagged.split("_")[1].contains("SYM") &&  !tagged.split("_")[1].contains("JJ")
+								 &&  !tagged.split("_")[1].contains("RB"))
+							continue;
+						
+						String stemWord = Stem.stem(temp[j]);
+	//					String stemWord = Stem.stem(word);
+						
+						
+						if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord) && !Stopword.isEnglishStopword(stemWord)) {
+							try{
+								Integer.parseInt(stemWord);
+							}catch(Exception e){
+								contentBuf.append(stemWord);
+								contentBuf.append(" ");
+							}				
+						}
+					}
+				}
+			}else{
 				String stemWord = Stem.stem(word);
 				if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord) && !Stopword.isEnglishStopword(stemWord)) {
-					contentBuf.append(stemWord);
-					contentBuf.append(" ");
+					try{
+						Integer.parseInt(stemWord);
+					}catch(Exception e){
+						contentBuf.append(stemWord);
+						contentBuf.append(" ");
+					}				
 				}
 			}
 		}
@@ -68,11 +119,16 @@ public class SourceFileCorpusCreator {
 		// parser.getImportedClasses() function should be called before calling parser.getContents()
 		ArrayList<String> importedClasses = parser.getImportedClasses();
 		String content[] = parser.getContent();
+				
 		String sourceCodeContent = stemContent(content);
+		
+		// 20170707 - Extend Preprocessing for remove less than 10 characters
+		SourceFileCorpus corpus = null;
+//		if(content.length < 5) return corpus;
 		
 		String classNameAndMethodName[] = parser.getClassNameAndMethodName();
 		String names = stemContent(classNameAndMethodName);
-		SourceFileCorpus corpus = new SourceFileCorpus();
+		corpus = new SourceFileCorpus();
 		corpus.setJavaFilePath(file.getAbsolutePath());
 		corpus.setJavaFileFullClassName(fileName);
 		corpus.setContent((new StringBuilder(String.valueOf(sourceCodeContent)))
@@ -96,6 +152,10 @@ public class SourceFileCorpusCreator {
 		for (int i = 0; i < files.length; i++) {
 			File file = files[i];
 			SourceFileCorpus corpus = create(file);
+
+			// 20170707 - Extend Preprocessing for remove less than 10 characters
+			if(corpus == null) continue;
+			
 			if (corpus != null && !nameSet.contains(corpus.getJavaFileFullClassName())) {
 				String fileName = corpus.getJavaFileFullClassName();
 				if (!corpus.getJavaFileFullClassName().endsWith(".java")) {
