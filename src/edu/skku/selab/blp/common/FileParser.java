@@ -602,27 +602,27 @@ public class FileParser {
 	}
 
 	private String deleteNoNeededNode() {
-//		compilationUnit.accept(new ASTVisitor() {
-//			public boolean visit(AnnotationTypeDeclaration node) {
-//				if (node.isPackageMemberTypeDeclaration())
-//					node.delete();
-//				return super.visit(node);
-//			}
-//		});
-//		
-//		compilationUnit.accept(new ASTVisitor() {
-//			public boolean visit(PackageDeclaration node) {
-//				node.delete();
-//				return super.visit(node);
-//			}
-//		});
-//		
-//		compilationUnit.accept(new ASTVisitor() {
-//			public boolean visit(ImportDeclaration node) {
-//				node.delete();
-//				return super.visit(node);
-//			}
-//		});
+		compilationUnit.accept(new ASTVisitor() {
+			public boolean visit(AnnotationTypeDeclaration node) {
+				if (node.isPackageMemberTypeDeclaration())
+					node.delete();
+				return super.visit(node);
+			}
+		});
+		
+		compilationUnit.accept(new ASTVisitor() {
+			public boolean visit(PackageDeclaration node) {
+				node.delete();
+				return super.visit(node);
+			}
+		});
+		
+		compilationUnit.accept(new ASTVisitor() {
+			public boolean visit(ImportDeclaration node) {
+				node.delete();
+				return super.visit(node);
+			}
+		});
 		
 		return compilationUnit.toString();
 	}

@@ -81,6 +81,10 @@ public class BugCorpusCreator {
 								 && !tagged.split("_")[1].contains("SYM") &&  !tagged.split("_")[1].contains("JJ")
 								 &&  !tagged.split("_")[1].contains("RB"))
 							continue;
+//						
+						if(tagged.split("_")[1].contains("RBR") || tagged.split("_")[1].contains("RBS")
+								|| tagged.split("_")[1].contains("JJR") || tagged.split("_")[1].contains("JJS"))
+							continue;
 						
 						String stemWord = Stem.stem(temp[j]);
 //						String stemWord = Stem.stem(word);
@@ -93,7 +97,9 @@ public class BugCorpusCreator {
 						
 						// Do NOT user Stopword.isKeyword() for BugCorpusCreator.
 						// Because bug report is not source code.
-						if (!Stopword.isEnglishStopword(stemWord) && !Stopword.isProjectKeyword(stemWord)) {
+						// 20170707 - Add to remove Java Keyword because we can mapping between br and sf
+						if (!Stopword.isEnglishStopword(stemWord) && !Stopword.isJavaKeyword(stemWord) 
+								&& !Stopword.isProjectKeyword(stemWord) && !Stopword.isJEmotionalword(stemWord)) {
 							try{
 								Integer.parseInt(stemWord);
 							}catch(Exception e){
@@ -105,6 +111,8 @@ public class BugCorpusCreator {
 				}
 				
 			}else{
+				if (word.length() < 1)
+					continue;
 				String stemWord = Stem.stem(word);
 				if (!Stopword.isEnglishStopword(stemWord) && !Stopword.isProjectKeyword(stemWord)) {
 					try{
@@ -235,10 +243,11 @@ public class BugCorpusCreator {
         String pattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*" +
         		"[a-zA-Z_<(][a-zA-Z0-9_\\-$>);/\\[]*" +
         		"\\(([a-zA-Z_][a-zA-Z0-9_\\-]*\\.java:[0-9]*|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)inlined compiled code\\)|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)compiled code\\)|(?i)native method|(?i)unknown source)\\))";
-        
+               
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(content);
         ArrayList<String> stackTraceClasses = new ArrayList<String>();
+        
         while (m.find()) {
         	String foundLine = m.group();
         	String methodName = foundLine.split("\\(")[0];
@@ -256,7 +265,27 @@ public class BugCorpusCreator {
         	
         	stackTraceClasses.add(fileName);
         }
-        return stackTraceClasses;
+    	return stackTraceClasses;
+    }
+
+    
+    //20170707 - Remove Stack Trace in Description by Misoo Rose    
+    public static String removeStackTrace(String content) {
+//      String pattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*\\(([a-zA-Z_][a-zA-Z0-9_\\-]*\\.java:[0-9]*|(?i)native method|(?i)unknown source)\\))";
+      String pattern = "(([a-zA-Z0-9_\\-$]*\\.)*[a-zA-Z_<][a-zA-Z0-9_\\-$>]*" +
+      		"[a-zA-Z_<(][a-zA-Z0-9_\\-$>);/\\[]*" +
+      		"\\(([a-zA-Z_][a-zA-Z0-9_\\-]*\\.java:[0-9]*|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)inlined compiled code\\)|[a-zA-Z_][a-zA-Z0-9_\\-]*\\.java\\((?i)compiled code\\)|(?i)native method|(?i)unknown source)\\))";
+             
+      Pattern r = Pattern.compile(pattern);
+      Matcher m = r.matcher(content);
+      ArrayList<String> stackTraceClasses = new ArrayList<String>();
+      
+      while (m.find()) {
+      	String foundLine = m.group();
+      	content = content.replace(foundLine, "");
+      }
+      
+      return content;
     }
     
     private static String parseContent(Bug bug, String content, boolean stackTraceAnalysis) {
@@ -269,6 +298,11 @@ public class BugCorpusCreator {
 		if (stackTraceAnalysis) {
 			bug.addStackTraceClasses(extractClassName(content, bug.getID()));
 		}
+		if(Property.getInstance().isNoiseStraceRemove()){
+			content = removeStackTrace(content);
+//			System.out.println(content);
+		}
+		
 		
 		// to remove HTML tag
     	String[] words = content.split("(?i)\\<[^\\>]*\\>");
@@ -379,7 +413,7 @@ public class BugCorpusCreator {
 //														}
 								
 														// debug code
-														System.out.printf("[BugCorpusCreator.parseXML()] BugID: %d, Fixed file name: %s\n", bug.getID(), fixedFileName);
+//														System.out.printf("[BugCorpusCreator.parseXML()] BugID: %d, Fixed file name: %s\n", bug.getID(), fixedFileName);
 													}
 													bug.addFixedFile(fixedFileName);
 													

@@ -16,6 +16,13 @@ public class Stopword
     public Stopword()
     {
     }
+    
+    //  20170707 - Emotional Term Remove by Misoo Rose
+    public static boolean isJEmotionalword(String word)
+    {
+        boolean isKeyword = EMOTIONAL_WORDS_SET.contains(word);
+        return isKeyword;
+    }
 
     // For checking source file term
     public static boolean isJavaKeyword(String word)
@@ -43,9 +50,48 @@ public class Stopword
     private static final TreeSet<String> JAVA_KEYWORDS_STOP_WORD_SET;
     private static final TreeSet<String> PROJECT_KEYWORDS_STOP_WORD_SET;
     private static final TreeSet<String> ENG_STOP_WORDS_SET;
+    private static final TreeSet<String> EMOTIONAL_WORDS_SET;
 
     static 
     {
+    	
+    	// Reference : http://www.psychpage.com/learning/library/assess/feelings.html and modified something
+    	// 20170707 - Emotional Term Remove by Misoo Rose
+    	String emotionalwords[] = {"HAPPY","ALIVE","GOOD","understanding","great","playful","calm","confident","gay","courageous",
+    			"peaceful","reliable","joyous","energetic","easy","lucky","liberated","comfortable","amazed","fortunate",
+    			"optimistic","pleased","free","delighted","provocative","encouraged","sympathetic","overjoyed","impulsive","clever",
+    			"interested","gleeful","free","surprised","satisfied","thankful","frisky","content","receptive","important","animated",
+    			"quiet","accepting","festive","spirited","certain","kind","ecstatic","thrilled","relaxed","satisfied","wonderful",
+    			"serene ","glad ","cheerful ","bright ","sunny ","blessed ","merry ","reassured ","elated","jubilant","LOVE","INTERESTED",
+    			"POSITIVE","STRONG","loving","concerned","eager","impulsive","considerate","affected","keen","free","affectionate",
+    			"fascinated","earnest","sure","sensitive","intrigued","intent","certain","tender","absorbed","anxious","rebellious",
+    			"devoted","inquisitive","inspired","attracted","nosy","determined","dynamic","passionate","snoopy","excited",
+    			"tenacious","admiration","engrossed","enthusiastic","hardy","warm","curious","touched ","brave ","sympathy",
+    			"daring","challenged","loved","optimistic","comforted","re-enforced ","confident","hopeful","ANGRY",
+    			"DEPRESSED","CONFUSED","HELPLESS","irritated","lousy","upset","incapable","enraged","disappointed","doubtful","alone",
+    			"hostile","discouraged","paralyzed","insulting","ashamed","indecisive","fatigued","sore","powerless","perplexed",
+    			"useless","annoyed","diminished","embarrassed","inferior","upset","guilty","hesitant","vulnerable","hateful","dissatisfied",
+    			"shy","unpleasant","miserable","stupefied","forced","offensive","detestable","disillusioned","hesitant","bitter",
+    			"repugnant","unbelieving","despair","aggressive","despicable","skeptical","frustrated","resentful","disgusting","distrustful",
+    			"distressed","inflamed","abominable","misgiving","woeful","provoked","terrible","pathetic","incensed",
+    			"unsure","tragic","infuriated","sulky","uneasy","bad","pessimistic","dominated",
+    			"tense ","boiling","fuming ","indignant","INDIFFERENT","AFRAID","HURT","SAD","insensitive","fearful","crushed","tearful",
+    			"dull","terrified","tormented","sorrowful","nonchalant","suspicious","deprived","pained","neutral","anxious","pained",
+    			"grief","reserved","alarmed","tortured","anguish","weary","panic","dejected","desolate","bored","nervous","rejected",
+    			"desperate","preoccupied","scared","injured","pessimistic","cold","worried","offended","unhappy","disinterested",
+    			"frightened","afflicted","lonely","lifeless","timid","aching","grieved ","shaky","victimized","mournful ","restless",
+    			"heartbroken","dismayed ","doubtful","agonized","threatened","appalled","cowardly","humiliated","quaking","wronged","menaced",
+    			"alienated ","wary"};
+    	
+    	EMOTIONAL_WORDS_SET = new TreeSet<String>();
+         for(int i = 0; i < emotionalwords.length; i++)
+         {
+             String word = emotionalwords[i].trim().toLowerCase();
+             word = Stem.stem(word.toLowerCase());
+             EMOTIONAL_WORDS_SET.add(word);
+         }
+    	
+    	
     	// References
     	// http://docs.oracle.com/javase/tutorial/java/nutsandbolts/_keywords.html
     	// http://en.wikipedia.org/wiki/List_of_Java_keywords#Reserved_words_for_literal_values

@@ -65,6 +65,7 @@ public class Property {
 	final static private String REFINED_OUTPUT_RESULT_FILE = Property.readProperty("REFINED_OUTPUT_RESULT_FILE");
 	final static private boolean COMMIT_BASED_EVAL = Property.readProperty("COMMIT_BASED_EVAL").equalsIgnoreCase("TRUE");
 	final static private boolean NEW_PREPROCESSING = Property.readProperty("NEW_PREPROCESSING").equalsIgnoreCase("TRUE");
+	final static private boolean NOISE_STRACE_REMOVE = Property.readProperty("NOISE_STRACE_REMOVE").equalsIgnoreCase("TRUE");
 
 	public int getBugTermCount() {
 		return bugTermCount;
@@ -477,6 +478,11 @@ public class Property {
 	 */
 	public boolean isCommitBasedEval() {
 		return COMMIT_BASED_EVAL;
+	}/**
+	 * @return the COMMIT_BASED_EVAL by MISOO ROSE
+	 */
+	public boolean isNoiseStraceRemove() {
+		return NOISE_STRACE_REMOVE;
 	}
 	/**
 	 * @return the COMMENT_PROBLEM_SOLVE by MISOO ROSE

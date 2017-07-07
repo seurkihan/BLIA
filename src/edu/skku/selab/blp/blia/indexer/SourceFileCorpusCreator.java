@@ -61,12 +61,17 @@ public class SourceFileCorpusCreator {
 								 && !tagged.split("_")[1].contains("SYM") &&  !tagged.split("_")[1].contains("JJ")
 								 &&  !tagged.split("_")[1].contains("RB"))
 							continue;
+
+						if(tagged.split("_")[1].contains("RBR") || tagged.split("_")[1].contains("RBS")
+								|| tagged.split("_")[1].contains("JJR") || tagged.split("_")[1].contains("JJS"))
+							continue;
 						
 						String stemWord = Stem.stem(temp[j]);
 	//					String stemWord = Stem.stem(word);
 						
 						
-						if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord) && !Stopword.isEnglishStopword(stemWord)) {
+						if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord) 
+								&& !Stopword.isEnglishStopword(stemWord)&& !Stopword.isJEmotionalword(stemWord)) {
 							try{
 								Integer.parseInt(stemWord);
 							}catch(Exception e){
@@ -77,8 +82,11 @@ public class SourceFileCorpusCreator {
 					}
 				}
 			}else{
+				if (word.length() < 1)
+					continue;
 				String stemWord = Stem.stem(word);
-				if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord) && !Stopword.isEnglishStopword(stemWord)) {
+				if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord)
+						&& !Stopword.isEnglishStopword(stemWord)) {
 					try{
 						Integer.parseInt(stemWord);
 					}catch(Exception e){
@@ -94,13 +102,14 @@ public class SourceFileCorpusCreator {
 	public static String stemContent(String content) {
 		StringBuffer contentBuf = new StringBuffer();
 		String word = content.toLowerCase();
-		if (word.length() > 0) {
-			String stemWord = Stem.stem(word);
-			if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord) && !Stopword.isEnglishStopword(stemWord)) {
-				contentBuf.append(stemWord);
-				contentBuf.append(" ");
-			}
+	
+		String stemWord = Stem.stem(word);
+		if (!Stopword.isJavaKeyword(stemWord) && !Stopword.isProjectKeyword(stemWord)&& !Stopword.isEnglishStopword(stemWord)) {
+			contentBuf.append(stemWord);
+			contentBuf.append(" ");
 		}
+		
+		
 		return contentBuf.toString();
 	}
 
@@ -124,7 +133,7 @@ public class SourceFileCorpusCreator {
 		
 		// 20170707 - Extend Preprocessing for remove less than 10 characters
 		SourceFileCorpus corpus = null;
-//		if(content.length < 5) return corpus;
+		if(content.length < 5) return corpus;
 		
 		String classNameAndMethodName[] = parser.getClassNameAndMethodName();
 		String names = stemContent(classNameAndMethodName);
